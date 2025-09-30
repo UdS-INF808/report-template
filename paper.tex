@@ -1,0 +1,52 @@
+\section{Introduction}
+
+L'introduction de mon document....
+
+Une liste de type \emph{enumerate}
+\begin{enumerate}
+  \item item1
+  \item item2
+\end{enumerate} 
+
+\section{Une autre section}
+
+\subsection{Une sous-section}
+
+\subsubsection{Une sous-sous-section}
+
+\subsubsection*{Une sous-sous-section sans numeros}
+
+\section{ références bibliographiques}
+
+\LaTeX est extrêmement utile pour gérer des références. De manière générale, les publications (surtout académiques) ainsi que les normes fournissent leur propre fichier de référence. Il est également possible de référencer une simple page web, par exemple.
+Dans notre cas, ces références s'expriment sous un fichier \emph{bibtex}. Le fichier \emph{bib.bib} fournit quelques exemples de références. Pour citer cette référence bibliographique dans le texte, on utilise la commande \emph{\textbackslash cite\{\}}. On remarquera que \cite{TS33.310} fait référence à une norme, tandis que \cite{aia2} fait référence à une page web.
+
+
+\section{Include une image}
+
+\section{Inclure une simple table}
+
+\begin{table}[H]
+{\tiny
+\begin{tabular}{|l|l|l|l|l|}
+\hline
+Description & \texttt{algorithm}      & \texttt{algorithm} OID  & \texttt{parameters}  & \texttt{parameters} OID \\
+\hline
+\hline
+RSA         &  rsaEncryption          & 1.2.840.113549.1.1.1    & NULL                 &  N/A\\ 
+\hline
+\hline
+P-256       & id‐ecPublicKey          &  1.2.840.10045.2.1      & namedCurve secp256r1 & 1.2.840.10045.3.1.7  \\
+P-384       & id‐ecPublicKey          &  1.2.840.10045.2.1      & namedCurve secp384r1 & 1.3.132.0.34  \\
+P-521       & id‐ecPublicKey          &  1.2.840.10045.2.1      & namedCurve secp521r1 & 1.3.132.0.35  \\
+\hline
+Ed25519                         & id-Ed25519        & 1.3.101.112 & ABSENT                        \\
+\hline
+Ed448                           & id-Ed448          & 1.3.101.113 & ABSENT                        \\
+\hline
+\end{tabular}
+}
+  \caption{\label{tab:algid-key} \texttt{AlgorithmIdentifier} description for the \texttt{subjectPublicKeyInfo} fields. Both \texttt{algorithm} and \texttt{parameters} are specified.} 
+\end{table}	
+
+

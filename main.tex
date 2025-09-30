@@ -1,0 +1,118 @@
+\documentclass[letterpaper,10pt,dvipsnames,french]{hitec}
+
+\usepackage{ifthen}
+\newboolean{latexmlc}
+\setboolean{latexmlc}{false}
+
+%% only used to ease conversion to html.
+\ifthenelse{\boolean{latexmlc}}{}{
+  \usepackage{babel,csquotes,xpatch}% recommended
+  \usepackage[backend=biber,citestyle=alphabetic,bibstyle=authortitle]{biblatex}
+}
+
+
+%% packages included for all classes
+%\usepackage[english] {babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{epsfig}
+\usepackage{calrsfs}
+%\usepackage[hyphens]{url}
+%\usepackage{breakurl}
+\usepackage{ifthen}
+\usepackage{cancel} % cancel is used to strike out text as well
+\usepackage{multirow}
+\usepackage{colortbl}
+\usepackage{adjustbox}
+\usepackage{lscape}
+\usepackage{tikz}
+%\usetikzlibrary{automata}
+\usetikzlibrary{positioning}
+\usepackage{colortbl}
+\usepackage{paralist}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+\usepackage{multicol}
+\usepackage{extarrows}
+\usepackage{tabularx}
+\usepackage{hhline}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{subcaption}
+%\usepackage{bibnames}
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\usepackage{verbatimbox}
+\usepackage{bmpsize}
+\usepackage{xcolor}
+\usepackage{lipsum}
+\usepackage[normalem]{ulem}
+
+% for basic article
+\usepackage[toc]{appendix}
+
+% for including verbatim 
+% it is used to create the myverb environment
+% https://tex.stackexchange.com/questions/488327/how-to-scale-a-verbatim-environment-on-a-minipage
+%\usepackage{amsmath,adjustbox,fancyvrb,caption}
+\usepackage{adjustbox,fancyvrb}
+
+\usepackage[ breaklinks, colorlinks=true]{hyperref}
+  %setup new colors
+  \hypersetup{
+    linkcolor=BrickRed,
+    citecolor=Green,
+    filecolor=Mulberry,
+    urlcolor=NavyBlue,
+    menucolor=BrickRed,
+    runcolor=Mulberry,
+    linkbordercolor=BrickRed,
+    citebordercolor=Green,
+    filebordercolor=Mulberry,
+    urlbordercolor=NavyBlue,
+    menubordercolor=BrickRed,
+    runbordercolor=Mulberry}
+    %to hilight text
+\usepackage[framemethod=tikz]{mdframed}
+%% defintion of the bib files
+%% when generated with biber
+\ifthenelse{\boolean{latexmlc}}{}{
+\bibliography{ietf,bib}
+\DeclareLabelname{%
+\field{shortauthor}
+\field{author}
+\field{shorteditor}
+\field{editor}
+\field{translator}
+\field{organization}
+}
+}
+% title and authors
+\input{preambule.tex}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\clearpage
+
+% main document content
+\input{paper}
+\ifthenelse{\boolean{latexmlc}}{
+  \bibliographystyle{IEEEtranS}
+  \bibliography{ietf,bib}
+}{
+  \printbibliography
+}
+\clearpage
+
+% appendix
+\appendix
+\input{appendix}
+
+\end{document}
+
+
+

@@ -1,0 +1,141 @@
+## Check whether packages are installed and if missing install them.
+## sudo apt-get install texlive-base texlive-extra-utils texlive-fonts-recommended texlive-latex-extra texlive-plain-generic texlive-science exlive-bibtex-extra 
+
+## texlive-base 
+## texlive-extra-utils  # for pdflatex
+## texlive-fonts-recommended # elsevier template
+## texlive-science # svg 
+## texlive-bibtex-extra  ## bibtext template
+
+## sudo add-apt-repository ppa:inkscape.dev/stable
+## sudo apt update
+## sudo apt install inkscape
+##
+
+check_installed() {
+  # Detect package manager
+  if command -v apt-get &>/dev/null; then
+    PKG_MGR="apt-get"
+    INSTALL_CMD="sudo apt-get install -y"
+    CHECK_CMD="dpkg -s"
+    UPDATE_CMD="sudo apt-get update -qq"
+  elif command -v dnf &>/dev/null; then
+    PKG_MGR="dnf"
+    INSTALL_CMD="sudo dnf install -y"
+    CHECK_CMD="rpm -q"
+    UPDATE_CMD="sudo dnf makecache -q"
+  elif command -v yum &>/dev/null; then
+    PKG_MGR="yum"
+    INSTALL_CMD="sudo yum install -y"
+    CHECK_CMD="rpm -q"
+    UPDATE_CMD="sudo yum makecache -q"
+  elif command -v pacman &>/dev/null; then
+    PKG_MGR="pacman"
+    INSTALL_CMD="sudo pacman -S --noconfirm"
+    CHECK_CMD="pacman -Qi"
+    UPDATE_CMD="sudo pacman -Sy --noconfirm"
+  elif command -v zypper &>/dev/null; then
+    PKG_MGR="zypper"
+    INSTALL_CMD="sudo zypper install -y"
+    CHECK_CMD="rpm -q"
+    UPDATE_CMD="sudo zypper refresh"
+  else
+    echo "❌ No supported package manager found (apt, yum, dnf, pacman, zypper)"
+    exit 1
+  fi
+
+  package_list=("texlive-base" "texlive-extra-utils" "texlive-fonts-recommended" "texlive-latex-extra" "texlive-plain-generic" "texlive-science" "texlive-bibtex-extra" "inkscape")
+  missing_package=()
+  for pkg in "${package_list[@]}"; do
+    if $CHECK_CMD "$pkg" &>/dev/null; then
+        echo "[OK] $pkg is already installed"
+    else
+#      echo "[MISSING] Installing $pkg..."
+#      $INSTALL_CMD "$pkg"
+       missing_package+=("$pkg")    
+    fi
+  done
+  if [ ${#missing_package[@]} -gt 0 ]; then
+    echo -e "Required installation of the following packages: ${package_list}"
+    echo -e "If you are using Ubuntu, consider using the latest versio nof inkscape"
+    echo -e "by running: "
+    echo -e "    sudo add-apt-repository ppa:inkscape.dev/stable"
+    echo -e "    sudo apt update"
+    echo -e "    sudo apt install inkscape"
+    $UPDATE_CMD
+    $INSTALL_CMD "$package_list$"
+  fi 
+
+}
+
+## It woudl be good this installation process does not run everytime
+## the script is running. This could be by associating a configuration
+## file and checking its existance and having a specific command to configure.
+check_installed
+
+file=main
+bibtex=0
+#bibtex=1
+
+rm -f ${file}.aux ${file}.bbl ${file}.blg ${file}.log ${file}.out ${file}.bcf ${file}.run.xml ${file}.toc
+
+## update bib file with IETF references
+#cite2bib
+
+## compiles tex files
+## we perform the first pdflatex with a -halt-on-error so the program 
+## exit (with an error). Without this option, pdflatex is requesting 
+## input from the user. This forces us to move to the pdlatex windows
+## to exit. 
+if [ ${bibtex} == 1 ]
+then
+  pdflatex -halt-on-error ${file}.tex && pdflatex  ${file}.tex && bibtex ${file}.aux && pdflatex  ${file}.tex && pdflatex ${file}.tex 
+else
+  pdflatex -halt-on-error ${file}.tex && pdflatex ${file}.tex && biber ${file} && pdflatex ${file}.tex #&& pdflatex ${file}.tex && pdflatex ${file}.tex 
+fi
+
+pdf_reader_list=( "okular" "evince" "qpdf" )
+  if command -v okular &>/dev/null; then
+    PDF_VIEWER="okular"
+  elif command -v evince &>/dev/null; then
+    PDF_VIEWER="evince"
+  elif command -v evince &>/dev/null; then
+    PDF_VIEWER="qpdf"
+  else
+    echo "❌ No supported PDF viewer"
+    exit 1
+  fi
+
+## okular main.pdf is started only when
+## 1) main.pdf exists: we check this to prevent the pdf viewer to be started
+##    and generate an error when the pdf file has not been generated. 
+## 2) okular main.pdf has  not been started yet. This is is avoid having 
+##    multiple PDF viewer windows. It is left to the PDF viewer to reload
+##    the newly generated PDF. Evince seems to work perfectly. Okular might
+##    work properly but needs some configuration. In this case, it could be
+##    that another main.pdf file has already been started in which case 
+##    okular will need to be strate dmanually. 
+
+## we check the existence of the file (when an error occurs for example) 
+if [ -f "${file}.pdf" ]; 
+then
+  ## checking okulra main.pdf
+  ## https://stackoverflow.com/questions/8965509/why-if-ps-aux-grep-always-succeeds-in-bash
+  if ps -eaf | grep -v "grep" | grep -q "${PDF_VIEWER} ${file}"
+  then
+    echo "It seems the PDF viewer is already displaying the PDF file."
+    echo "If that is not the case, it could be that another file is "
+    echo "open with the same name. We suggest to strat manualy okular"
+    echo "${main}.pdf. This will happen only once."
+    ps -eaf | grep -v "grep" | grep -q "${PDF_VIEWER} ${file}"
+  else
+    ## evince ${file}.pdf &
+    okular ${file}.pdf &
+  fi
+else
+  echo "There is no ${file}.pdf to be displayed" 
+fi
+
+rm -f ${file}.aux ${file}.bbl ${file}.blg ${file}.log ${file}.out ${file}.bcf ${file}.run.xml ${file}.toc
+
+
